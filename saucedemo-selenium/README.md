@@ -1,22 +1,51 @@
-# saucedemo-selenium
+# 🛒 SauceDemo — Testes E2E com Selenium
 
-Projeto de testes automatizados end-to-end para o site [SauceDemo](https://www.saucedemo.com), desenvolvido com **Selenium WebDriver** e **pytest**.
-
-O teste cobre o fluxo completo de compra: login → adição de produto ao carrinho → checkout → confirmação do pedido.
+Suíte de testes automatizados end-to-end para o site público [SauceDemo](https://www.saucedemo.com), cobrindo o fluxo completo de compra. Os testes são executados via **pytest + Selenium WebDriver** e integrados ao **GitHub Actions** para rodar automaticamente a cada push ou pull request.
 
 ---
 
-## Pré-requisitos
+## 📁 Estrutura do Projeto
+
+```
+saucedemo-selenium/
+├── tests/
+│   └── test_checkout.py       # Teste principal do fluxo de compra
+├── .github/
+│   └── workflows/
+│       └── ci.yml             # Pipeline de CI/CD
+├── requirements.txt           # Dependências do projeto
+└── README.md
+```
+
+---
+
+## ✅ Cobertura de Testes
+
+### 🛍️ Fluxo de Compra (1 teste / 7 asserções)
+
+| Etapa | Ação | Validação |
+|-------|------|-----------|
+| Login | Autentica com `standard_user` | URL contém `inventory` |
+| Carrinho | Adiciona *Sauce Labs Backpack* | Nome do produto no carrinho |
+| Checkout | Preenche nome, sobrenome e CEP | — |
+| Resumo | Avança para a etapa de revisão | URL contém `checkout-step-two` e produto listado |
+| Confirmação | Finaliza o pedido | Mensagem `"Thank you for your order!"` |
+
+**Total: 1 teste / 7 asserções**
+
+---
+
+## 🔧 Pré-requisitos
 
 - Python 3.12+
 - Google Chrome instalado
-- ChromeDriver compatível com a versão do Chrome (gerenciado automaticamente pelo Selenium 4+)
+- ChromeDriver compatível (gerenciado automaticamente pelo Selenium 4+)
 
 ---
 
-## Instalação
+## 🚀 Como Executar Localmente
 
-Clone o repositório e instale as dependências:
+### Instalação
 
 ```bash
 git clone https://github.com/seu-usuario/saucedemo-selenium.git
@@ -26,85 +55,75 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
----
-
-## Como executar
+### Executando os testes
 
 ```bash
 pytest
 ```
 
-Para rodar com saída detalhada:
+### Executando com saída detalhada
 
 ```bash
 pytest -v
 ```
 
-Para rodar em modo headless (sem abrir o navegador):
-
-O modo headless já está ativado por padrão no teste. Para desativá-lo durante o desenvolvimento, remova ou comente a linha `options.add_argument("--headless")` no arquivo `tests/test_checkout.py`.
+> O modo headless já está ativado por padrão. Para desativá-lo durante o desenvolvimento, remova ou comente a linha `options.add_argument("--headless")` em `tests/test_checkout.py`.
 
 ---
 
-## Estrutura do projeto
+## ⚙️ CI/CD com GitHub Actions
+
+Os testes são executados automaticamente pelo workflow `.github/workflows/ci.yml` nos seguintes eventos:
+
+- **Push** na branch `main`
+- **Pull Request** com destino à branch `main`
+
+### Pipeline
 
 ```
-saucedemo-selenium/
-├── tests/
-│   └── test_checkout.py       # Teste principal do fluxo de compra
-├── .github/
-│   └── workflows/
-│       └── ci.yml             # Pipeline de CI com GitHub Actions
-├── requirements.txt           # Dependências do projeto
-└── README.md
+Checkout → Configurar Python 3.12 → Instalar Chrome → Instalar dependências → Rodar testes
 ```
 
----
-
-## Cenário de teste
-
-O arquivo `tests/test_checkout.py` cobre o seguinte fluxo:
-
-1. Acessa `https://www.saucedemo.com`
-2. Realiza login com o usuário `standard_user`
-3. Valida o redirecionamento para a página de produtos
-4. Adiciona o produto *Sauce Labs Backpack* ao carrinho
-5. Abre o carrinho e valida se o produto está presente
-6. Inicia o checkout e preenche os dados do cliente
-7. Valida o resumo da compra
-8. Finaliza o pedido e valida a mensagem de confirmação
+Para visualizar os resultados, acesse a aba **Actions** no repositório do GitHub.
 
 ---
 
-## CI/CD
+## 🧪 Estratégia de Testes
 
-O projeto utiliza **GitHub Actions** para rodar os testes automaticamente a cada `push` ou `pull request` na branch `main`.
+O teste segue um **fluxo encadeado e linear**, simulando um usuário real navegando pela loja do início ao fim:
 
-O workflow instala o Chrome, configura o Python 3.12, instala as dependências e executa o pytest. Veja a configuração completa em `.github/workflows/ci.yml`.
+- **Login → Navegação → Adição ao carrinho → Checkout → Confirmação**
+- Cada etapa valida o **estado da página** antes de prosseguir (URL, texto e presença de elementos)
+- O navegador é encerrado via `finally`, garantindo limpeza mesmo em caso de falha
 
 ---
 
-## Dependências
+## 🔐 Credenciais de Teste
+
+O SauceDemo é um site público criado para fins de automação. As credenciais abaixo são disponibilizadas oficialmente pelo próprio site:
+
+| Usuário | Senha | Comportamento |
+|---------|-------|---------------|
+| `standard_user` | `secret_sauce` | Fluxo normal ✅ |
+| `locked_out_user` | `secret_sauce` | Login bloqueado 🔒 |
+| `problem_user` | `secret_sauce` | Elementos com defeito ⚠️ |
+| `performance_glitch_user` | `secret_sauce` | Respostas lentas 🐢 |
+
+> Os demais usuários são úteis para expandir a cobertura de testes com cenários negativos e de degradação.
+
+---
+
+## 📦 Dependências
 
 | Pacote | Versão mínima | Descrição |
 |--------|---------------|-----------|
-| selenium | 4.0.0 | Automação do navegador |
-| pytest | 9.0.0 | Framework de testes |
+| `selenium` | 4.0.0 | Automação do navegador |
+| `pytest` | 9.0.0 | Framework de testes |
 
 ---
 
-## Credenciais de teste
+## 🌐 Sobre o SauceDemo
 
-O SauceDemo é um site público criado para fins de automação de testes. As credenciais usadas no projeto são oficialmente disponibilizadas pelo próprio site:
+O [SauceDemo](https://www.saucedemo.com) é uma aplicação de e-commerce fictícia mantida pela Sauce Labs, criada especificamente para prática de automação de testes. Por ser um ambiente público e compartilhado, o estado da aplicação pode variar entre sessões — isso é esperado e não representa falha nos testes.
 
-| Usuário | Senha |
-|---------|-------|
-| `standard_user` | `secret_sauce` |
-
-Outros usuários disponíveis no site incluem `locked_out_user`, `problem_user` e `performance_glitch_user`, úteis para expandir a cobertura de testes.
-
----
-
-## Licença
-
-Este projeto é de uso livre para fins educacionais e de estudo.
+- Site: https://www.saucedemo.com
