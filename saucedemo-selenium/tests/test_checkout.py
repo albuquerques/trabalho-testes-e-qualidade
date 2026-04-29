@@ -6,7 +6,9 @@ import time
 
 def test_fluxo_completo_de_compra():
     options = Options()
-    options.add_argument("--start-maximized")
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
     driver = webdriver.Chrome(options=options)
 
