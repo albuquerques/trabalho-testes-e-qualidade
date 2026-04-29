@@ -1,129 +1,87 @@
-# 🐾 Swagger Petstore — Testes de API
+# 🛒 SauceDemo — Testes E2E com Selenium
 
-Suíte de testes automatizados para a API pública [Swagger Petstore](https://petstore.swagger.io), cobrindo os módulos de **Pet**, **Store** e **User**. Os testes são executados via **Postman/Newman** e integrados ao **GitHub Actions** para rodar automaticamente a cada push ou pull request.
+Suíte de testes automatizados end-to-end para o site público [SauceDemo](https://www.saucedemo.com), cobrindo o fluxo completo de compra. Os testes são executados via **pytest + Selenium WebDriver** e integrados ao **GitHub Actions** para rodar automaticamente a cada push ou pull request.
 
 ---
 
 ## 📁 Estrutura do Projeto
 
 ```
-swagger-petstore-tests/
-├── postman/
-│   ├── collection.json      # Coleção com todos os testes
-│   └── environment.json     # Variáveis de ambiente
-└── .github/
-    └── workflows/
-        └── api-tests.yml    # Pipeline de CI/CD
+saucedemo-selenium/
+├── tests/
+│   └── test_checkout.py       # Teste principal do fluxo de compra
+├── .github/
+│   └── workflows/
+│       └── ci.yml             # Pipeline de CI/CD
+├── requirements.txt           # Dependências do projeto
+└── README.md
 ```
 
 ---
 
 ## ✅ Cobertura de Testes
 
-### 👤 User (10 requests)
+### 🛍️ Fluxo de Compra (1 teste / 7 asserções)
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/user` | Cria um usuário com dados dinâmicos |
-| GET | `/user/{username}` | Busca o usuário criado |
-| PUT | `/user/{username}` | Atualiza dados do usuário |
-| GET | `/user/{username}` | Valida que a atualização foi aplicada |
-| GET | `/user/login` | Realiza login e valida a resposta |
-| GET | `/user/logout` | Realiza logout |
-| POST | `/user/createWithArray` | Cria múltiplos usuários via array |
-| POST | `/user/createWithList` | Cria múltiplos usuários via lista |
-| DELETE | `/user/{username}` | Remove o usuário |
-| GET | `/user/{username}` | Valida que o usuário foi deletado (404) |
+| Etapa | Ação | Validação |
+|-------|------|-----------|
+| Login | Autentica com `standard_user` | URL contém `inventory` |
+| Carrinho | Adiciona *Sauce Labs Backpack* | Nome do produto no carrinho |
+| Checkout | Preenche nome, sobrenome e CEP | — |
+| Resumo | Avança para a etapa de revisão | URL contém `checkout-step-two` e produto listado |
+| Confirmação | Finaliza o pedido | Mensagem `"Thank you for your order!"` |
 
-### 🐶 Pet (8 requests)
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/pet` | Cria um pet e salva o ID no ambiente |
-| GET | `/pet/{petId}` | Busca o pet pelo ID |
-| PUT | `/pet` | Atualiza nome e status do pet |
-| GET | `/pet/{petId}` | Valida que a atualização foi aplicada |
-| GET | `/pet/findByStatus` | Lista pets por status (`sold`) |
-| POST | `/pet/{petId}` | Atualiza pet via form data |
-| DELETE | `/pet/{petId}` | Remove o pet |
-| GET | `/pet/{petId}` | Valida que o pet foi deletado (404) |
-
-### 🏪 Store (5 requests)
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/store/inventory` | Consulta o inventário da loja |
-| POST | `/store/order` | Cria um pedido e salva o ID |
-| GET | `/store/order/{orderId}` | Busca o pedido pelo ID |
-| DELETE | `/store/order/{orderId}` | Remove o pedido |
-| GET | `/store/order/{orderId}` | Valida que o pedido foi deletado (404) |
-
-**Total: 23 requests / ~85 asserções**
+**Total: 1 teste / 7 asserções**
 
 ---
 
-## 🔧 Variáveis de Ambiente
+## 🔧 Pré-requisitos
 
-O arquivo `postman/environment.json` define as seguintes variáveis:
-
-| Variável | Descrição | Valor padrão |
-|----------|-----------|-------------|
-| `base_url` | URL base da API | `https://petstore.swagger.io/v2` |
-| `pet_id` | ID do pet criado (preenchido em runtime) | — |
-| `pet_name` | Nome do pet criado (preenchido em runtime) | — |
-| `order_id` | ID do pedido criado (preenchido em runtime) | — |
-| `username` | Username do usuário criado (preenchido em runtime) | — |
-| `user_id` | ID do usuário criado (preenchido em runtime) | — |
-| `password` | Senha padrão usada nos testes | `123456` |
-
-> As variáveis preenchidas em runtime são salvas via `pm.environment.set()` durante a execução dos testes e reutilizadas nas requisições seguintes.
+- Python 3.12+
+- Google Chrome instalado
+- ChromeDriver compatível (gerenciado automaticamente pelo Selenium 4+)
 
 ---
 
 ## 🚀 Como Executar Localmente
 
-### Pré-requisitos
-
-- [Node.js](https://nodejs.org/) v20 ou superior
-- [Newman](https://www.npmjs.com/package/newman) (CLI do Postman)
-
-### Instalação do Newman
+### Instalação
 
 ```bash
-npm install -g newman
+git clone https://github.com/seu-usuario/saucedemo-selenium.git
+cd saucedemo-selenium
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
 ### Executando os testes
 
 ```bash
-newman run postman/collection.json -e postman/environment.json
+pytest
 ```
 
-### Executando com relatório HTML (opcional)
+### Executando com saída detalhada
 
 ```bash
-npm install -g newman-reporter-htmlextra
-
-newman run postman/collection.json \
-  -e postman/environment.json \
-  -r htmlextra \
-  --reporter-htmlextra-export results/report.html
+pytest -v
 ```
+
+> O modo headless já está ativado por padrão. Para desativá-lo durante o desenvolvimento, remova ou comente a linha `options.add_argument("--headless")` em `tests/test_checkout.py`.
 
 ---
 
 ## ⚙️ CI/CD com GitHub Actions
 
-Os testes são executados automaticamente pelo workflow `.github/workflows/api-tests.yml` nos seguintes eventos:
+Os testes são executados automaticamente pelo workflow `.github/workflows/ci.yml` nos seguintes eventos:
 
 - **Push** na branch `main`
 - **Pull Request** com destino à branch `main`
-- **Execução manual** via `workflow_dispatch`
 
 ### Pipeline
 
 ```
-Checkout → Instalar Node.js 20 → Instalar Newman → Rodar testes
+Checkout → Configurar Python 3.12 → Instalar Chrome → Instalar dependências → Rodar testes
 ```
 
 Para visualizar os resultados, acesse a aba **Actions** no repositório do GitHub.
@@ -132,17 +90,40 @@ Para visualizar os resultados, acesse a aba **Actions** no repositório do GitHu
 
 ## 🧪 Estratégia de Testes
 
-Os testes seguem um **fluxo encadeado**: o resultado de uma requisição alimenta as seguintes por meio de variáveis de ambiente, simulando um cenário real de uso da API.
+O teste segue um **fluxo encadeado e linear**, simulando um usuário real navegando pela loja do início ao fim:
 
-- **Criação → Leitura → Atualização → Validação → Exclusão → Validação**
-- Dados dinâmicos gerados com `{{$randomInt}}` e `{{$timestamp}}` evitam conflitos entre execuções
-- Cada request valida o **status HTTP** e, quando aplicável, **campos específicos do corpo da resposta**
+- **Login → Navegação → Adição ao carrinho → Checkout → Confirmação**
+- Cada etapa valida o **estado da página** antes de prosseguir (URL, texto e presença de elementos)
+- O navegador é encerrado via `finally`, garantindo limpeza mesmo em caso de falha
 
 ---
 
-## 🌐 Sobre a API
+## 🔐 Credenciais de Teste
 
-A [Swagger Petstore](https://petstore.swagger.io) é uma API pública de demonstração mantida pela Swagger/OpenAPI. Por ser um ambiente compartilhado, dados criados por outros usuários podem interferir em buscas por status — isso é esperado e não representa falha nos testes.
+O SauceDemo é um site público criado para fins de automação. As credenciais abaixo são disponibilizadas oficialmente pelo próprio site:
 
-- Documentação: https://petstore.swagger.io
-- Especificação OpenAPI: https://petstore.swagger.io/v2/swagger.json
+| Usuário | Senha | Comportamento |
+|---------|-------|---------------|
+| `standard_user` | `secret_sauce` | Fluxo normal ✅ |
+| `locked_out_user` | `secret_sauce` | Login bloqueado 🔒 |
+| `problem_user` | `secret_sauce` | Elementos com defeito ⚠️ |
+| `performance_glitch_user` | `secret_sauce` | Respostas lentas 🐢 |
+
+> Os demais usuários são úteis para expandir a cobertura de testes com cenários negativos e de degradação.
+
+---
+
+## 📦 Dependências
+
+| Pacote | Versão mínima | Descrição |
+|--------|---------------|-----------|
+| `selenium` | 4.0.0 | Automação do navegador |
+| `pytest` | 9.0.0 | Framework de testes |
+
+---
+
+## 🌐 Sobre o SauceDemo
+
+O [SauceDemo](https://www.saucedemo.com) é uma aplicação de e-commerce fictícia mantida pela Sauce Labs, criada especificamente para prática de automação de testes. Por ser um ambiente público e compartilhado, o estado da aplicação pode variar entre sessões — isso é esperado e não representa falha nos testes.
+
+- Site: https://www.saucedemo.com
