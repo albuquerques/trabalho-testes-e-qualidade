@@ -88,30 +88,33 @@ def test_fluxo_completo_de_compra():
         wait.until(
             EC.visibility_of_element_located((By.ID, "first-name"))
         )
-
+        
         # Preencher informações do cliente
         preencher_campo(wait, By.ID, "first-name", "Ricardo")
         preencher_campo(wait, By.ID, "last-name", "Albuquerque")
         preencher_campo(wait, By.ID, "postal-code", "64000-000")
-
+        
+        assert driver.find_element(By.ID, "first-name").get_attribute("value") == "Ricardo"
+        assert driver.find_element(By.ID, "last-name").get_attribute("value") == "Albuquerque"
+        assert driver.find_element(By.ID, "postal-code").get_attribute("value") == "64000-000"
+        
         continue_button = wait.until(
             EC.element_to_be_clickable((By.ID, "continue"))
         )
-
-        continue_button.click()
-
-        # Validar resumo da compra
+        
+        driver.execute_script("arguments[0].click();", continue_button)
+        
         try:
             wait.until(
                 EC.visibility_of_element_located((By.CLASS_NAME, "summary_info"))
             )
         except Exception:
             print("URL atual:", driver.current_url)
-
+        
             erros = driver.find_elements(By.CSS_SELECTOR, "[data-test='error']")
             if erros:
                 print("Erro exibido na tela:", erros[0].text)
-
+        
             raise
 
         # Finalizar compra
