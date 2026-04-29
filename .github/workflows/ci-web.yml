@@ -2,16 +2,17 @@ name: Selenium Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-            - name: Baixar repositório
+      - name: Baixar repositório
         uses: actions/checkout@v4
 
       - name: Configurar Python
@@ -19,13 +20,13 @@ jobs:
         with:
           python-version: "3.12"
 
-            - name: Instalar Chrome
+      - name: Instalar Chrome
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
       - name: Instalar dependências
-        run: pip install -r requirements.txt
+        run: pip install -r saucedemo-selenium/requirements.txt
 
       - name: Rodar testes com pytest
-        run: pytest
+        run: pytest saucedemo-selenium/tests
