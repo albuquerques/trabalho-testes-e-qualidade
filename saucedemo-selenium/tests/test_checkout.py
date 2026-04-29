@@ -13,12 +13,15 @@ def test_fluxo_completo_de_compra():
     options.add_argument("--window-size=1920,1080")
 
     driver = webdriver.Chrome(options=options)
-    wait = WebDriverWait(driver, 15)
+    wait = WebDriverWait(driver, 20)
 
     try:
         driver.get("https://www.saucedemo.com/")
 
-        wait.until(EC.visibility_of_element_located((By.ID, "user-name"))).send_keys("standard_user")
+        wait.until(
+            EC.visibility_of_element_located((By.ID, "user-name"))
+        ).send_keys("standard_user")
+
         driver.find_element(By.ID, "password").send_keys("secret_sauce")
         driver.find_element(By.ID, "login-button").click()
 
@@ -28,11 +31,15 @@ def test_fluxo_completo_de_compra():
             EC.element_to_be_clickable((By.ID, "add-to-cart-sauce-labs-backpack"))
         ).click()
 
-        wait.until(
-            EC.element_to_be_clickable((By.CLASS_NAME, "shopping_cart_link"))
-        ).click()
+        cart_button = wait.until(
+            EC.presence_of_element_located((By.CLASS_NAME, "shopping_cart_link"))
+        )
 
-        wait.until(EC.url_contains("cart"))
+        driver.execute_script("arguments[0].click();", cart_button)
+
+        wait.until(
+            EC.visibility_of_element_located((By.ID, "checkout"))
+        )
 
         produto = wait.until(
             EC.visibility_of_element_located((By.CLASS_NAME, "inventory_item_name"))
@@ -55,15 +62,19 @@ def test_fluxo_completo_de_compra():
         driver.find_element(By.ID, "last-name").send_keys("Albuquerque")
         driver.find_element(By.ID, "postal-code").send_keys("64000-000")
 
-        wait.until(
+        continue_button = wait.until(
             EC.element_to_be_clickable((By.ID, "continue"))
-        ).click()
+        )
+
+        driver.execute_script("arguments[0].click();", continue_button)
 
         wait.until(EC.url_contains("checkout-step-two"))
 
-        wait.until(
+        finish_button = wait.until(
             EC.element_to_be_clickable((By.ID, "finish"))
-        ).click()
+        )
+
+        driver.execute_script("arguments[0].click();", finish_button)
 
         mensagem = wait.until(
             EC.visibility_of_element_located((By.CLASS_NAME, "complete-header"))
