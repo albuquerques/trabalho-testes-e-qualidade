@@ -1,0 +1,27 @@
+name: API Tests - Swagger Petstore
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar Newman
+        run: npm install -g newman
+
+      - name: Rodar testes da API
+        run: newman run postman/collection.json -e postman/environment.json

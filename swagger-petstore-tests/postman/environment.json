@@ -1,0 +1,52 @@
+{
+	"id": "c352b2f8-f9b9-416a-814e-2624c88aaa21",
+	"name": "Swagger Petstore Env",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "https://petstore.swagger.io/v2",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "pet_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "pet_name",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "order_id",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "username",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "password",
+			"value": "123456",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-04-29T18:09:35.238Z",
+	"_postman_exported_using": "Postman/12.8.3-260429-0232"
+}
