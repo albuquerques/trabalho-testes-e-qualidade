@@ -30,3 +30,10 @@ jobs:
 
       - name: Rodar testes com pytest
         run: pytest saucedemo-selenium/tests
+
+      - name: Salvar evidências em caso de erro
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidencias-selenium
+          path: evidencias/
