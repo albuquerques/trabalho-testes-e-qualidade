@@ -24,4 +24,4 @@ jobs:
         run: npm install -g newman
 
       - name: Rodar testes da API
-        run: newman run postman/collection.json -e postman/environment.json
+        run: newman run swagger-petstore-tests/postman/collection.json -e swagger-petstore-tests/postman/environment.json
