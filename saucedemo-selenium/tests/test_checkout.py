@@ -36,9 +36,15 @@ def test_fluxo_completo_de_compra_saucedemo():
  
         # Adiciona produto ao carrinho
         wait.until(EC.element_to_be_clickable((By.ID, "add-to-cart-sauce-labs-backpack"))).click()
- 
+
+        # Aguarda o badge do carrinho confirmar que o item foi adicionado
+        wait.until(EC.text_to_be_present_in_element((By.CLASS_NAME, "shopping_cart_badge"), "1"))
+
         # Acessa o carrinho
         wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "shopping_cart_link"))).click()
+
+        # Aguarda a URL mudar para a página do carrinho
+        wait.until(EC.url_contains("cart"))
  
         # Valida produto no carrinho
         produto = wait.until(
