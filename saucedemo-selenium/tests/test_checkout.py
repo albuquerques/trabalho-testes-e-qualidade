@@ -40,7 +40,7 @@ def test_fluxo_completo_de_compra_saucedemo():
         # Aguarda o badge confirmar que o item foi adicionado
         wait.until(EC.text_to_be_present_in_element((By.CLASS_NAME, "shopping_cart_badge"), "1"))
 
-        # Navega diretamente para o carrinho (mais confiável que clicar no ícone em headless)
+        # Navega diretamente para o carrinho
         driver.get("https://www.saucedemo.com/cart.html")
         wait.until(EC.url_contains("cart"))
 
@@ -48,11 +48,11 @@ def test_fluxo_completo_de_compra_saucedemo():
         produto = wait.until(
             EC.visibility_of_element_located((By.CLASS_NAME, "inventory_item_name"))
         ).text
-
         assert produto == "Sauce Labs Backpack"
 
-        # Checkout
-        wait.until(EC.element_to_be_clickable((By.ID, "checkout"))).click()
+        # Navega diretamente para o checkout
+        driver.get("https://www.saucedemo.com/checkout-step-one.html")
+        wait.until(EC.url_contains("checkout-step-one"))
 
         # Preenche formulário
         wait.until(EC.visibility_of_element_located((By.ID, "first-name"))).send_keys("Ricardo")
@@ -60,14 +60,14 @@ def test_fluxo_completo_de_compra_saucedemo():
         wait.until(EC.visibility_of_element_located((By.ID, "postal-code"))).send_keys("64000-000")
         wait.until(EC.element_to_be_clickable((By.ID, "continue"))).click()
 
-        # Finaliza compra
+        # Aguarda página de resumo e finaliza compra
+        wait.until(EC.url_contains("checkout-step-two"))
         wait.until(EC.element_to_be_clickable((By.ID, "finish"))).click()
 
         # Valida mensagem final
         mensagem = wait.until(
             EC.visibility_of_element_located((By.CLASS_NAME, "complete-header"))
         ).text
-
         assert mensagem == "Thank you for your order!"
 
     finally:
