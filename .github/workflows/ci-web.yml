@@ -23,16 +23,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Instalar Google Chrome e ChromeDriver compatível
+      - name: Instalar Google Chrome e ChromeDriver pareados
         uses: browser-actions/setup-chrome@v2
+        id: setup-chrome
         with:
-          chrome-version: stable
+          chrome-version: "147"
           install-chromedriver: true
+
+      - name: Exportar caminhos do Chrome e ChromeDriver
+        run: |
+          echo "CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+          echo "CHROMEDRIVER_PATH=${{ steps.setup-chrome.outputs.chromedriver-path }}" >> $GITHUB_ENV
 
       - name: Verificar versões
         run: |
-          google-chrome --version
-          chromedriver --version
+          ${{ steps.setup-chrome.outputs.chrome-path }} --version
+          ${{ steps.setup-chrome.outputs.chromedriver-path }} --version
 
       - name: Instalar dependências
         run: |

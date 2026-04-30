@@ -1,6 +1,8 @@
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -15,7 +17,16 @@ def criar_driver():
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")
 
-    return webdriver.Chrome(options=options)
+    # Usa o Chrome instalado pela action setup-chrome, se disponível
+    chrome_path = os.environ.get("CHROME_PATH")
+    if chrome_path:
+        options.binary_location = chrome_path
+
+    # Usa o ChromeDriver instalado pela action setup-chrome, se disponível
+    chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
+    service = Service(chromedriver_path) if chromedriver_path else Service()
+
+    return webdriver.Chrome(service=service, options=options)
 
 
 def test_fluxo_completo_de_compra_saucedemo():
