@@ -50,7 +50,7 @@ def test_fluxo_completo_de_compra_saucedemo():
         assert produto == "Sauce Labs Backpack"
 
         # Checkout
-        driver.find_element(By.ID, "checkout").click()
+        wait.until(EC.element_to_be_clickable((By.ID, "checkout"))).click()
 
         wait.until(EC.visibility_of_element_located((By.ID, "first-name"))).send_keys("Ricardo")
         driver.find_element(By.ID, "last-name").send_keys("Albuquerque")
