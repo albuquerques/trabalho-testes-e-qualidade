@@ -1,6 +1,6 @@
 # 🐾 Swagger Petstore — Testes de API
 
-![CI](https://github.com/seu-usuario/swagger-petstore-tests/actions/workflows/api-tests.yml/badge.svg)
+![CI](https://github.com/albuquerques/trabalho-testes-e-qualidade/actions/workflows/api-tests.yml/badge.svg)
 
 Suíte de testes automatizados para a API pública [Swagger Petstore](https://petstore.swagger.io), cobrindo os módulos de **Pet**, **Store** e **User**. Os testes são executados via **Postman/Newman** e integrados ao **GitHub Actions** para rodar automaticamente a cada push ou pull request.
 
@@ -9,16 +9,15 @@ Suíte de testes automatizados para a API pública [Swagger Petstore](https://pe
 ## 📁 Estrutura do Projeto
 
 ```
-swagger-petstore-tests/
-├── postman/
-│   ├── collection.json      # Coleção com todos os testes
-│   └── environment.json     # Variáveis de ambiente
-└── .github/
-    └── workflows/
-        └── api-tests.yml    # Pipeline de CI/CD
+trabalho-testes-e-qualidade/
+├── .github/
+│   └── workflows/
+│       └── api-tests.yml        # Pipeline de CI/CD (raiz do repositório)
+└── swagger-petstore-tests/
+    └── postman/
+        ├── collection.json      # Coleção com todos os testes
+        └── environment.json     # Variáveis de ambiente
 ```
-
-> **Nota:** A pasta `.github/workflows/` não está incluída no arquivo exportado do Postman. Para ativar o CI/CD, crie o arquivo `api-tests.yml` manualmente no repositório — consulte a seção [CI/CD com GitHub Actions](#️-cicd-com-github-actions) para o conteúdo esperado do pipeline.
 
 ---
 
@@ -119,7 +118,7 @@ newman run postman/collection.json \
 
 ## ⚙️ CI/CD com GitHub Actions
 
-Os testes são executados automaticamente pelo workflow `.github/workflows/api-tests.yml` nos seguintes eventos:
+O pipeline está configurado no arquivo `.github/workflows/api-tests.yml` na **raiz do repositório** e é disparado nos seguintes eventos:
 
 - **Push** na branch `main`
 - **Pull Request** com destino à branch `main`
@@ -131,7 +130,7 @@ Os testes são executados automaticamente pelo workflow `.github/workflows/api-t
 Checkout → Instalar Node.js 20 → Instalar Newman → Rodar testes
 ```
 
-### Exemplo de configuração (`api-tests.yml`)
+### Configuração (`api-tests.yml`)
 
 ```yaml
 name: API Tests
@@ -146,9 +145,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: swagger-petstore-tests
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
       - run: npm install -g newman

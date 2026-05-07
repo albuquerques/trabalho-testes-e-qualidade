@@ -1,5 +1,7 @@
 # 🛒 SauceDemo — Testes de UI com Selenium
 
+![CI](https://github.com/albuquerques/trabalho-testes-e-qualidade/actions/workflows/ci.yml/badge.svg)
+
 Suíte de testes automatizados para o site de e-commerce de demonstração [SauceDemo](https://www.saucedemo.com), cobrindo o **fluxo completo de compra**. Os testes são executados via **Pytest + Selenium** com Chrome headless, prontos para integração em pipelines de CI/CD com **GitHub Actions**.
 
 ---
@@ -7,10 +9,14 @@ Suíte de testes automatizados para o site de e-commerce de demonstração [Sauc
 ## 📁 Estrutura do Projeto
 
 ```
-saucedemo-selenium/
-├── tests/
-│   └── test_checkout.py    # Teste do fluxo completo de compra
-└── requirements.txt        # Dependências do projeto
+trabalho-testes-e-qualidade/
+├── .github/
+│   └── workflows/
+│       └── ci.yml               # Pipeline de CI/CD (raiz do repositório)
+└── saucedemo-selenium/
+    ├── tests/
+    │   └── test_checkout.py     # Teste do fluxo completo de compra
+    └── requirements.txt         # Dependências do projeto
 ```
 
 ---
@@ -38,7 +44,7 @@ saucedemo-selenium/
 O arquivo `requirements.txt` define as seguintes dependências:
 
 | Pacote | Versão | Descrição |
-|--------|--------|-----------| 
+|--------|--------|-----------|
 | `selenium` | 4.21.0 | Automação de navegador web |
 | `pytest` | 8.2.2 | Framework de execução de testes |
 
@@ -77,7 +83,7 @@ pytest -v --html=results/report.html --self-contained-html
 
 ## ⚙️ CI/CD com GitHub Actions
 
-O pipeline está configurado no arquivo `.github/workflows/ci-web.yml`:
+O pipeline está configurado no arquivo `.github/workflows/ci.yml` na **raiz do repositório**:
 
 ```yaml
 name: Testes Web - SauceDemo
