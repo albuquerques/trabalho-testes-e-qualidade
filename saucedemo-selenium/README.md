@@ -17,17 +17,19 @@ saucedemo-selenium/
 
 ## ✅ Cobertura de Testes
 
-### 🛍️ Fluxo Completo de Compra (1 teste / ~6 asserções)
+### 🛍️ Fluxo Completo de Compra (1 teste / ~7 asserções)
 
 | Etapa | Ação | Validação |
 |-------|------|-----------|
 | Login | Preenche usuário e senha e clica em entrar | URL contém `inventory` |
-| Catálogo | Página de produtos carregada | — |
-| Carrinho | Adiciona "Sauce Labs Backpack" ao carrinho | Produto presente no carrinho |
-| Checkout | Preenche nome, sobrenome e CEP | — |
-| Confirmação | Finaliza a compra | Mensagem `"Thank you for your order!"` |
+| Carrinho | Adiciona "Sauce Labs Backpack" ao carrinho | Badge do carrinho exibe `1` |
+| Carrinho | Navega para o carrinho | Produto presente (`"Sauce Labs Backpack"`) |
+| Checkout — Dados | Preenche nome, sobrenome e CEP e clica em continuar | — |
+| Checkout — Resumo | Aguarda página de revisão do pedido | URL contém `checkout-step-two` |
+| Checkout — Confirmação | Finaliza a compra | — |
+| Confirmação | Valida mensagem de sucesso | Texto `"Thank you for your order!"` |
 
-**Total: 1 teste / ~6 asserções**
+**Total: 1 teste / ~7 asserções**
 
 ---
 
@@ -36,11 +38,11 @@ saucedemo-selenium/
 O arquivo `requirements.txt` define as seguintes dependências:
 
 | Pacote | Versão | Descrição |
-|--------|--------|-----------|
+|--------|--------|-----------| 
 | `selenium` | 4.21.0 | Automação de navegador web |
 | `pytest` | 8.2.2 | Framework de execução de testes |
 
-> O ChromeDriver é gerenciado automaticamente pelo Selenium Manager a partir da versão 4.6+, sem necessidade de instalação manual.
+> O ChromeDriver é gerenciado automaticamente pelo Selenium Manager a partir da versão 4.6+, sem necessidade de instalação manual em ambiente local.
 
 ---
 
@@ -60,7 +62,7 @@ pip install -r requirements.txt
 ### Executando os testes
 
 ```bash
-pytest tests/test_checkout.py -v
+pytest -v
 ```
 
 ### Executando com relatório HTML (opcional)
@@ -68,52 +70,74 @@ pytest tests/test_checkout.py -v
 ```bash
 pip install pytest-html
 
-pytest tests/test_checkout.py -v --html=results/report.html --self-contained-html
+pytest -v --html=results/report.html --self-contained-html
 ```
 
 ---
 
 ## ⚙️ CI/CD com GitHub Actions
 
-Para integrar ao GitHub Actions, crie o arquivo `.github/workflows/ui-tests.yml`:
+O pipeline está configurado no arquivo `.github/workflows/ci-web.yml`:
 
 ```yaml
-name: UI Tests
+name: Testes Web - SauceDemo
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
-  test:
+  selenium-tests:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: saucedemo-selenium
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4
 
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
+      - name: Instalar Google Chrome e ChromeDriver pareados
+        uses: browser-actions/setup-chrome@v2
+        id: setup-chrome
+        with:
+          chrome-version: "147"
+          install-chromedriver: true
+
+      - name: Exportar caminhos do Chrome e ChromeDriver
+        run: |
+          echo "CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+          echo "CHROMEDRIVER_PATH=${{ steps.setup-chrome.outputs.chromedriver-path }}" >> $GITHUB_ENV
+
+      - name: Verificar versões
+        run: |
+          ${{ steps.setup-chrome.outputs.chrome-path }} --version
+          ${{ steps.setup-chrome.outputs.chromedriver-path }} --version
 
       - name: Instalar dependências
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Instalar Google Chrome
-        uses: browser-actions/setup-chrome@v1
-
-      - name: Rodar testes
-        run: pytest tests/ -v
+      - name: Executar testes Selenium
+        run: pytest -v
 ```
 
 ### Pipeline
 
 ```
-Checkout → Configurar Python → Instalar dependências → Instalar Chrome → Rodar testes
+Checkout → Configurar Python → Instalar Chrome + ChromeDriver → Exportar caminhos → Verificar versões → Instalar dependências → Rodar testes
 ```
+
+> O Chrome e o ChromeDriver são instalados na versão **147** via `browser-actions/setup-chrome@v2`, garantindo compatibilidade entre os dois. Os caminhos são exportados como variáveis de ambiente (`CHROME_PATH` e `CHROMEDRIVER_PATH`) e lidos automaticamente pelo código do teste.
 
 Para visualizar os resultados, acesse a aba **Actions** no repositório do GitHub.
 
@@ -126,6 +150,7 @@ O teste segue um **fluxo de ponta a ponta** que simula um usuário real realizan
 - **Login → Catálogo → Adicionar ao carrinho → Checkout → Confirmação**
 - O Chrome é iniciado em modo **headless** (`--headless=new`), garantindo compatibilidade com ambientes de CI sem interface gráfica
 - O `WebDriverWait` é utilizado em todas as interações para aguardar elementos dinamicamente, tornando os testes resilientes a variações de carregamento
+- Em etapas críticas, o teste navega diretamente para a URL caso o clique não acione a transição esperada, evitando falhas intermitentes de CI
 - O bloco `finally` garante que o driver seja encerrado corretamente mesmo em caso de falha
 
 ---
