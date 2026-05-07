@@ -1,5 +1,7 @@
 # 🐾 Swagger Petstore — Testes de API
 
+![CI](https://github.com/seu-usuario/swagger-petstore-tests/actions/workflows/api-tests.yml/badge.svg)
+
 Suíte de testes automatizados para a API pública [Swagger Petstore](https://petstore.swagger.io), cobrindo os módulos de **Pet**, **Store** e **User**. Os testes são executados via **Postman/Newman** e integrados ao **GitHub Actions** para rodar automaticamente a cada push ou pull request.
 
 ---
@@ -15,6 +17,8 @@ swagger-petstore-tests/
     └── workflows/
         └── api-tests.yml    # Pipeline de CI/CD
 ```
+
+> **Nota:** A pasta `.github/workflows/` não está incluída no arquivo exportado do Postman. Para ativar o CI/CD, crie o arquivo `api-tests.yml` manualmente no repositório — consulte a seção [CI/CD com GitHub Actions](#️-cicd-com-github-actions) para o conteúdo esperado do pipeline.
 
 ---
 
@@ -86,6 +90,7 @@ O arquivo `postman/environment.json` define as seguintes variáveis:
 
 - [Node.js](https://nodejs.org/) v20 ou superior
 - [Newman](https://www.npmjs.com/package/newman) (CLI do Postman)
+- _(Opcional)_ [newman-reporter-htmlextra](https://www.npmjs.com/package/newman-reporter-htmlextra) para relatórios HTML
 
 ### Instalação do Newman
 
@@ -124,6 +129,30 @@ Os testes são executados automaticamente pelo workflow `.github/workflows/api-t
 
 ```
 Checkout → Instalar Node.js 20 → Instalar Newman → Rodar testes
+```
+
+### Exemplo de configuração (`api-tests.yml`)
+
+```yaml
+name: API Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - run: npm install -g newman
+      - run: newman run postman/collection.json -e postman/environment.json
 ```
 
 Para visualizar os resultados, acesse a aba **Actions** no repositório do GitHub.
